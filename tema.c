@@ -26,7 +26,7 @@ typedef struct Player Player;
 void citireF(FILE *f, lstTeam *l) {
   int n, i, j;
   fscanf(f, "%d", &n);
-  printf("Numarul de echipe este: %d\n", n);
+  //printf("Numarul de echipe este: %d\n", n);
   for (i = 0; i < n; i++) {
     
     fscanf(f, "%d", &(l->T.numPlayers));
@@ -34,12 +34,13 @@ void citireF(FILE *f, lstTeam *l) {
     
     char *buffer;
     buffer = (char *)malloc(sizeof(char) * 100);
+    fgetc(f);
     fgets(buffer, 100, f);
     l->T.name = (char *)malloc(sizeof(char) * strlen(buffer));
     strcpy(l->T.name, buffer);
     free(buffer);
     
-    printf("Nume echipa: %s  Numar membrii: %d\n", l->T.name, l->T.numPlayers);
+    //printf("Nume echipa: %s  Numar membrii: %d\n", l->T.name, l->T.numPlayers);
     
     for (j = 0; j < l->T.numPlayers; j++) {
 
@@ -56,8 +57,7 @@ void citireF(FILE *f, lstTeam *l) {
       free(buffer);
 
       fscanf(f, "%d", &(l->T.P[j].points));
-      printf("Nume: %s  Prenume: %s  Scor: %d\n", l->T.P[j].secondName,
-             l->T.P[j].firstName, l->T.P[j].points);
+      //printf("Nume: %s  Prenume: %s  Scor: %d\n", l->T.P[j].secondName, l->T.P[j].firstName, l->T.P[j].points);
     }
     
     lstTeam *p;
@@ -67,17 +67,35 @@ void citireF(FILE *f, lstTeam *l) {
     l = l->next;
     l->next = NULL;
   }
+  l=l->prev;
+  l->next=NULL;
+  fclose(f);
+}
+
+
+void scriereF (FILE *f, lstTeam *l){
+  while(l->next!=NULL){ 
+   l=l->next;
+   }
+  while(l!=NULL){ 
+   fputs(l->T.name, f);
+   l=l->prev;
+   }
 }
 
 int main() {
-  FILE *d;
-  if ((d = fopen("d.in", "r+t")) == NULL) {
-    printf("Fisierul nu poate fi deschis !\n");
+  FILE *d; 
+  FILE *r;
+  FILE *c;
+  if ((d = fopen("date/t1/d.in", "r+t")) == NULL ||(r = fopen("out/out1.out", "w+t") ) == NULL || (c = fopen("date/t1/c.in", "r+t")) == NULL) {
+    printf("Unul sau ambele fisiere nu poate/pot fi deschis/e !\n");
     exit(1);
   }
   lstTeam *lista;
   lista = (lstTeam *)malloc(sizeof(lstTeam));
   lista->next = NULL;
   lista->prev = NULL;
+  
   citireF(d, lista);
+  scriereF(r, lista);
 }
