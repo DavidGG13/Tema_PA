@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 struct Player {
   char *firstName;
@@ -84,13 +85,13 @@ void scriereF(FILE *f, lstTeam *l) {
   }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
   FILE *d;
   FILE *r;
   FILE *c;
-  if ((d = fopen("date/t1/d.in", "r+t")) == NULL ||
-      (r = fopen("out/out1.out", "w+t")) == NULL ||
-      (c = fopen("date/t1/c.in", "r+t")) == NULL) {
+  if ((d = fopen(argv[2], "r+t")) == NULL ||
+      (r = fopen(argv[3], "w+t")) == NULL ||
+      (c = fopen(argv[1], "r+t")) == NULL) {
     printf("Unul sau ambele fisiere nu poate/pot fi deschis/e !\n");
     exit(1);
   }
