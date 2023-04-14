@@ -1,7 +1,7 @@
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
 
 struct Player {
   char *firstName;
@@ -12,6 +12,7 @@ struct Player {
 struct Team {
   int numPlayers;
   char *name;
+  float teamScore;
   struct Player *P;
 };
 
@@ -24,12 +25,11 @@ typedef struct lstTeam lstTeam;
 typedef struct Team Team;
 typedef struct Player Player;
 
-void citireF(FILE *f, lstTeam *l) {
+int citireF(FILE *f, lstTeam *l) {
   int n, i, j;
   fscanf(f, "%d", &n);
   // printf("Numarul de echipe este: %d\n", n);
   for (i = 0; i < n; i++) {
-
     fscanf(f, "%d", &(l->T.numPlayers));
     l->T.P = (Player *)malloc(sizeof(Player) * l->T.numPlayers);
 
@@ -43,9 +43,9 @@ void citireF(FILE *f, lstTeam *l) {
 
     // printf("Nume echipa: %s  Numar membrii: %d\n", l->T.name,
     // l->T.numPlayers);
+    l->T.teamScore = 0;
 
     for (j = 0; j < l->T.numPlayers; j++) {
-
       buffer = (char *)malloc(sizeof(char) * 100);
       fscanf(f, "%s", buffer);
       l->T.P[j].secondName = (char *)malloc(sizeof(char) * strlen(buffer));
@@ -61,8 +61,10 @@ void citireF(FILE *f, lstTeam *l) {
       fscanf(f, "%d", &(l->T.P[j].points));
       // printf("Nume: %s  Prenume: %s  Scor: %d\n", l->T.P[j].secondName,
       // l->T.P[j].firstName, l->T.P[j].points);
+      l->T.teamScore = l->T.teamScore + l->T.P[j].points;
     }
-
+    l->T.teamScore = l->T.teamScore / l->T.numPlayers;
+    // printf("Name: %s\nScore: %.2f\n", l->T.name, l->T.teamScore);
     lstTeam *p;
     p = (lstTeam *)malloc(sizeof(lstTeam));
     l->next = p;
@@ -73,6 +75,7 @@ void citireF(FILE *f, lstTeam *l) {
   l = l->prev;
   l->next = NULL;
   fclose(f);
+  return n;
 }
 
 void scriereF(FILE *f, lstTeam *l) {
@@ -82,6 +85,15 @@ void scriereF(FILE *f, lstTeam *l) {
   while (l != NULL) {
     fputs(l->T.name, f);
     l = l->prev;
+  }
+}
+
+void Eliminate(lstTeam *l, int n) {
+  int i;
+  float v[n];
+  lstTeam *p = l;
+  for (i = 0; i < n; i++, p = p->next) {
+    v[i] = p->T.teamScore;
   }
 }
 
@@ -95,11 +107,41 @@ int main(int argc, char *argv[]) {
     printf("Unul sau ambele fisiere nu poate/pot fi deschis/e !\n");
     exit(1);
   }
+  int cerinte = 0, i, n, ch;
   lstTeam *lista;
   lista = (lstTeam *)malloc(sizeof(lstTeam));
   lista->next = NULL;
   lista->prev = NULL;
 
-  citireF(d, lista);
-  scriereF(r, lista);
+  ch = getc(c);
+  fseek(c, 0L, SEEK_SET);
+  while (ch != EOF) {
+    fscanf(c, "%d", &i);
+    cerinte = cerinte + i;
+    ch = getc(c);
+  }
+
+  printf("cerinte = %d\n", cerinte);
+
+  switch (cerinte) {
+    case 1:
+      n = citireF(d, lista);
+      scriereF(r, lista);
+      break;
+    case 2:
+      n = citireF(d, lista);
+      scriereF(r, lista);
+      break;
+    case 3:
+      n = citireF(d, lista);
+      scriereF(r, lista);
+      break;
+    case 4:
+      n = citireF(d, lista);
+      scriereF(r, lista);
+      break;
+    default:
+      printf("Nu au fost executate cerintele!\n");
+      break;
+  }
 }
