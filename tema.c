@@ -88,16 +88,16 @@ void scriereF(FILE *f, lstTeam *l) {
   }
 }
 
-void swap(int *a, int *b) {
-  int t = *a;
+void swap(float *a, float *b) {
+  float t = *a;
   *a = *b;
   *b = t;
 }
 
 // function to find the partition position
-int partition(int array[], int low, int high) {
-  int pivot = array[high];  // select the rightmost element as pivot
-                            // pointer for greater element
+int partition(float array[], int low, int high) {
+  float pivot = array[high];  // select the rightmost element as pivot
+                              // pointer for greater element
   int i = (low - 1);
 
   // traverse each element of the array
@@ -120,7 +120,7 @@ int partition(int array[], int low, int high) {
   return (i + 1);
 }
 
-void quickSort(int array[], int low, int high) {
+void quickSort(float array[], int low, int high) {
   if (low < high) {
     // find the pivot element such that
     // elements smaller than pivot are on left of pivot
@@ -135,12 +135,11 @@ void quickSort(int array[], int low, int high) {
   }
 }
 
-void delNode(lstTeam *l) {}
-
 void Eliminate(lstTeam *l, int n) {
   int i, m = 1, diff;
-  float v[n];
-  lstTeam *p = l, *q;
+  float *v, f;
+  v = (float *)malloc(sizeof(float) * n);
+  lstTeam *p = l, *q, *fin;
   for (i = 0; i < n; i++, p = p->next) {
     v[i] = p->T.teamScore;
   }
@@ -153,20 +152,46 @@ void Eliminate(lstTeam *l, int n) {
   m = m / 2;
   diff = n - m;
   m = diff;
-  i = 0;
-  diff = v[diff - 1];
+  f = v[diff - 1];
+  printf("Numarul sub care trebuie sa fie: %.2f \n", f);
   p = l;
+  i = 0;
+  while (p->next) {
+    p = p->next;
+  }
+  fin = p;
   while (p) {
-    if (diff >= p->T.teamScore && i < diff) {
+    if (f > p->T.teamScore && i < diff) {
       lstTeam *temp;
       temp = p;
-      q = p->prev;
-      p = p->next;
-      q->next = p;
-      p->prev = q;
+      q = p->next;
+      p = p->prev;
+      p->next = q;
+      if (q != NULL) {
+        q->prev = p;
+      }
       free(temp);
       i++;
+      continue;
     }
+    p = p->prev;
+  }
+  p = fin;
+  while (p) {
+    if (f == p->T.teamScore && i < diff) {
+      lstTeam *temp;
+      temp = p;
+      q = p->next;
+      p = p->prev;
+      p->next = q;
+      if (q != NULL) {
+        q->prev = p;
+      }
+      free(temp);
+      i++;
+      continue;
+    }
+    p = p->prev;
   }
 }
 
@@ -174,6 +199,7 @@ int main(int argc, char *argv[]) {
   FILE *d;
   FILE *r;
   FILE *c;
+  //"Tema/d.in" "Tema/r.out" "Tema/c.in"
   if ((d = fopen(argv[2], "r+t")) == NULL ||
       (r = fopen(argv[3], "w+t")) == NULL ||
       (c = fopen(argv[1], "r+t")) == NULL) {
@@ -203,14 +229,17 @@ int main(int argc, char *argv[]) {
       break;
     case 2:
       n = citireF(d, lista);
+      Eliminate(lista, n);
       scriereF(r, lista);
       break;
     case 3:
       n = citireF(d, lista);
+      Eliminate(lista, n);
       scriereF(r, lista);
       break;
     case 4:
       n = citireF(d, lista);
+      Eliminate(lista, n);
       scriereF(r, lista);
       break;
     default:
