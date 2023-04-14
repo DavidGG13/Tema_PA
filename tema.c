@@ -152,19 +152,20 @@ void Eliminate(lstTeam *l, int n) {
   }
   m = m / 2;
   diff = n - m;
-  m=diff;
-  i=0;
+  m = diff;
+  i = 0;
   diff = v[diff - 1];
   p = l;
   while (p) {
-    if (diff >= p->T.teamScore && i<diff) {
+    if (diff >= p->T.teamScore && i < diff) {
       lstTeam *temp;
-      temp=p;
-      q=p->prev;
-      p=p->next;
-      q->next=p;
-      p->prev=q;
+      temp = p;
+      q = p->prev;
+      p = p->next;
+      q->next = p;
+      p->prev = q;
       free(temp);
+      i++;
     }
   }
 }
