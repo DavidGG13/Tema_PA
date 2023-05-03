@@ -1,8 +1,8 @@
+#include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
 
 struct Player {
   char *firstName;
@@ -22,19 +22,19 @@ struct lstTeam {
   struct lstTeam *next, *prev;
 };
 
-struct Node{
+struct Node {
   struct Team val;
   struct Node *next;
 };
-struct Node_Q{
-  struct Match{
+struct Node_Q {
+  struct Match {
     struct Team Team1;
     struct Team Team2;
-  }Match;
+  } Match;
   struct Node_Q *next;
 };
 struct Q {
-  struct Node *front, *rear;
+  struct Node_Q *front, *rear;
 };
 typedef struct Node_Q Node_Q;
 typedef struct Match Match;
@@ -44,39 +44,36 @@ typedef struct Team Team;
 typedef struct Player Player;
 typedef struct Node Node;
 
-//FUNCTII COADA
+// FUNCTII COADA
 Queue *createQueue() {
   Queue *q;
   q = (Queue *)malloc(sizeof(Queue));
-  if (q == NULL)
-    return NULL;
+  if (q == NULL) return NULL;
   q->front = q->rear = NULL;
   return q;
 }
 void enQueue(Queue *q, Team t1, Team t2) {
   Node_Q *newNode = (Node_Q *)malloc(sizeof(Node_Q));
   newNode->Match.Team1 = t1;
-  newNode->Match.Team2=t2;
+  newNode->Match.Team2 = t2;
   newNode->next = NULL;
   // nodurile noi se adauga la finalul cozii
-  if (q->rear == NULL)
-    q->rear = newNode;
+  if (q->rear == NULL) q->rear = newNode;
   // daca nu exista niciun nod in coada
   else {
     (q->rear)->next = newNode;
     (q->rear) = newNode;
   }
   // daca exita un singur element in coada
-  if (q->front == NULL)
-    q->front = q->rear;
+  if (q->front == NULL) q->front = q->rear;
 }
 int isEmptyQ(Queue *q) { return (q->front == NULL); }
 Match deQueue(Queue *q) {
   Node_Q *aux;
   Match m;
   aux = q->front;
-  m.Team1=aux->Match.Team1;
-  m.Team2=aux->Match.Team2;
+  m.Team1 = aux->Match.Team1;
+  m.Team2 = aux->Match.Team2;
   q->front = (q->front)->next;
   free(aux);
   return m;
@@ -92,34 +89,33 @@ void deleteQueue(Queue *q) {
   free(q);
 }
 
-//FUNCTII STIVA
-void push ( Node ** top , Team v) {
-Node * newNode =( Node *) malloc ( sizeof ( Node ));
-newNode->val=v;
-newNode->next =*top;
-*top= newNode ;
+// FUNCTII STIVA
+void push(Node **top, Team v) {
+  Node *newNode = (Node *)malloc(sizeof(Node));
+  newNode->val = v;
+  newNode->next = *top;
+  *top = newNode;
 }
-Team pop( Node ** top) {
-    Node * temp =(* top );
-    Team aux=temp->val;
-    *top =(* top)->next ;
-    free ( temp );
-    return aux ;
+Team pop(Node **top) {
+  Node *temp = (*top);
+  Team aux = temp->val;
+  *top = (*top)->next;
+  free(temp);
+  return aux;
 }
-Team top( Node * top ){
-    if ( isEmptyS ( top )) return ;
-    return top->val;
+int isEmptyS(Node *top) { return top == NULL; }
+Team top(Node *top) {
+  Team empty;
+  if (isEmptyS(top)) return empty;
+  return top->val;
 }
-int isEmptyS ( Node *top ){
-  return top == NULL ;
-}
-void deleteNode ( Node ** top ){
-    Node * temp ;
-    while ((* top )!= NULL ){
-        temp =* top;
-        *top =(* top)->next ;
-        free ( temp );
-    }
+void deleteNode(Node **top) {
+  Node *temp;
+  while ((*top) != NULL) {
+    temp = *top;
+    *top = (*top)->next;
+    free(temp);
+  }
 }
 
 int citireF(FILE *f, lstTeam *l) {
@@ -137,7 +133,7 @@ int citireF(FILE *f, lstTeam *l) {
     l->T.name = (char *)malloc(sizeof(char) * strlen(buffer));
     strcpy(l->T.name, buffer);
     free(buffer);
-
+    l->T.name[strlen(l->T.name) - 1] = '\0';
     // printf("Nume echipa: %s  Numar membrii: %d\n", l->T.name,
     // l->T.numPlayers);
     l->T.teamScore = 0;
@@ -181,6 +177,7 @@ void scriereF(FILE *f, lstTeam *l) {
   }
   while (l != NULL) {
     fputs(l->T.name, f);
+    fputc('\n', f);
     l = l->prev;
   }
 }
@@ -191,9 +188,8 @@ void swap(float *a, float *b) {
   *b = t;
 }
 
-
 int partition(float array[], int low, int high) {
-  float pivot = array[high];  
+  float pivot = array[high];
   int i = (low - 1);
 
   for (int j = low; j < high; j++) {
@@ -208,15 +204,9 @@ int partition(float array[], int low, int high) {
 
 void quickSort(float array[], int low, int high) {
   if (low < high) {
-    // find the pivot element such that
-    // elements smaller than pivot are on left of pivot
-    // elements greater than pivot are on right of pivot
     int pi = partition(array, low, high);
 
-    // recursive call on the left of pivot
     quickSort(array, low, pi - 1);
-
-    // recursive call on the right of pivot
     quickSort(array, pi + 1, high);
   }
 }
@@ -232,7 +222,7 @@ void Eliminate(lstTeam *l, int n) {
 
   quickSort(v, 0, n - 1);
 
-  while (m < n) {
+  while (m <= n) {
     m = m * 2;
   }
   m = m / 2;
@@ -250,7 +240,12 @@ void Eliminate(lstTeam *l, int n) {
       lstTeam *temp;
       temp = p;
       q = p->next;
-      p = p->prev;
+      if (p->prev) {
+        p = p->prev;
+      } else {
+        q->prev = NULL;
+        break;
+      }
       p->next = q;
       if (q != NULL) {
         q->prev = p;
@@ -267,7 +262,12 @@ void Eliminate(lstTeam *l, int n) {
       lstTeam *temp;
       temp = p;
       q = p->next;
-      p = p->prev;
+      if (p->prev) {
+        p = p->prev;
+      } else {
+        q->prev = NULL;
+        break;
+      }
       p->next = q;
       if (q != NULL) {
         q->prev = p;
@@ -280,42 +280,54 @@ void Eliminate(lstTeam *l, int n) {
   }
 }
 
-void add_queue(lstTeam *l, Queue *q){
-  while(l->next){
-    l=l->next;
+void add_queue(lstTeam *l, Queue *q) {
+  while (l->next) {
+    l = l->next;
   }
-  while(l->prev){
-    enQueue(q, l->T, l->prev->T);
-    l=l->prev->prev;
+  lstTeam *p;
+  p = l->prev;
+  while (l->prev) {
+    enQueue(q, l->T, p->T);
+
+    l = p->prev;
+    if (l == NULL) break;
+    p = l->prev;
   }
 }
 
-void Play(Queue *q, Node ** L, Node **W){
+void Play(FILE *f, Queue *q, Node **L, Node **W) {
   Match M;
-  int i;
-  
-  while(q){
-    M=deQueue(q);
-    if(q==NULL){
-      break;
+  int i, n;
+  fseek(f, 0L, SEEK_END);
+  while (q->front) {
+    M = deQueue(q);
+    M.Team1.name[strlen(M.Team1.name) - 1] = '\0';
+    n = 68 - strlen(M.Team2.name);
+    fputs(M.Team1.name, f);
+    for (i = strlen(M.Team1.name); i < n; i++) {
+      if (i == 34) {
+        fputc('-', f);
+        continue;
+      }
+      fputc(' ', f);
     }
-    if(M.Team1.teamScore>=M.Team1.teamScore){
+    fputs(M.Team2.name, f);
+    if (M.Team1.teamScore >= M.Team1.teamScore) {
       push(W, M.Team1);
-      M.Team1.teamScore=M.Team1.teamScore+1;
-      for(i=0;i<M.Team1.numPlayers;i++){
-        M.Team1.P->points=M.Team1.P->points+1;
+      M.Team1.teamScore = M.Team1.teamScore + 1;
+      for (i = 0; i < M.Team1.numPlayers; i++) {
+        M.Team1.P->points = M.Team1.P->points + 1;
       }
       push(L, M.Team2);
-    }else{
+    } else {
       push(L, M.Team1);
       push(W, M.Team2);
-      M.Team2.teamScore=M.Team2.teamScore+1;
-      for(i=0;i<M.Team2.numPlayers;i++){
-        M.Team2.P->points=M.Team2.P->points+1;
+      M.Team2.teamScore = M.Team2.teamScore + 1;
+      for (i = 0; i < M.Team2.numPlayers; i++) {
+        M.Team2.P->points = M.Team2.P->points + 1;
       }
     }
   }
-  
 }
 
 int main(int argc, char *argv[]) {
@@ -334,7 +346,7 @@ int main(int argc, char *argv[]) {
   lista = (lstTeam *)malloc(sizeof(lstTeam));
   lista->next = NULL;
   lista->prev = NULL;
-
+  printf("Verificare..\n");
   ch = getc(c);
   fseek(c, 0L, SEEK_SET);
   while (ch != EOF) {
@@ -344,9 +356,8 @@ int main(int argc, char *argv[]) {
   }
   Queue *queue;
   queue = createQueue();
-  Node *stack;
+  Node *Winners, *Losers;
   printf("cerinte = %d\n", cerinte);
-
   switch (cerinte) {
     case 1:
       n = citireF(d, lista);
@@ -361,11 +372,15 @@ int main(int argc, char *argv[]) {
       n = citireF(d, lista);
       Eliminate(lista, n);
       scriereF(r, lista);
+      add_queue(lista, queue);
+      Play(r, queue, &Losers, &Winners);
       break;
     case 4:
       n = citireF(d, lista);
       Eliminate(lista, n);
       scriereF(r, lista);
+      add_queue(lista, queue);
+      Play(r, queue, &Losers, &Winners);
       break;
     default:
       printf("Nu au fost executate cerintele!\n");
