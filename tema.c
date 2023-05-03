@@ -284,12 +284,40 @@ void add_queue(lstTeam *l, Queue *q){
   while(l->next){
     l=l->next;
   }
-  lstTeam *p;
   while(l->prev){
-    enQueue(q, l->T, p->prev->T);
+    enQueue(q, l->T, l->prev->T);
     l=l->prev->prev;
   }
 }
+
+void Play(Queue *q, Node ** L, Node **W){
+  Match M;
+  int i;
+  
+  while(q){
+    M=deQueue(q);
+    if(q==NULL){
+      break;
+    }
+    if(M.Team1.teamScore>=M.Team1.teamScore){
+      push(W, M.Team1);
+      M.Team1.teamScore=M.Team1.teamScore+1;
+      for(i=0;i<M.Team1.numPlayers;i++){
+        M.Team1.P->points=M.Team1.P->points+1;
+      }
+      push(L, M.Team2);
+    }else{
+      push(L, M.Team1);
+      push(W, M.Team2);
+      M.Team2.teamScore=M.Team2.teamScore+1;
+      for(i=0;i<M.Team2.numPlayers;i++){
+        M.Team2.P->points=M.Team2.P->points+1;
+      }
+    }
+  }
+  
+}
+
 int main(int argc, char *argv[]) {
   FILE *d;
   FILE *r;
@@ -317,7 +345,6 @@ int main(int argc, char *argv[]) {
   Queue *queue;
   queue = createQueue();
   Node *stack;
-
   printf("cerinte = %d\n", cerinte);
 
   switch (cerinte) {
