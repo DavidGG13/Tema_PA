@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 struct Player {
   char *firstName;
@@ -21,9 +22,105 @@ struct lstTeam {
   struct lstTeam *next, *prev;
 };
 
+struct Node{
+  struct Team val;
+  struct Node *next;
+};
+struct Node_Q{
+  struct Match{
+    struct Team Team1;
+    struct Team Team2;
+  }Match;
+  struct Node_Q *next;
+};
+struct Q {
+  struct Node *front, *rear;
+};
+typedef struct Node_Q Node_Q;
+typedef struct Match Match;
+typedef struct Q Queue;
 typedef struct lstTeam lstTeam;
 typedef struct Team Team;
 typedef struct Player Player;
+typedef struct Node Node;
+
+//FUNCTII COADA
+Queue *createQueue() {
+  Queue *q;
+  q = (Queue *)malloc(sizeof(Queue));
+  if (q == NULL)
+    return NULL;
+  q->front = q->rear = NULL;
+  return q;
+}
+void enQueue(Queue *q, Team t1, Team t2) {
+  Node_Q *newNode = (Node_Q *)malloc(sizeof(Node_Q));
+  newNode->Match.Team1 = t1;
+  newNode->Match.Team2=t2;
+  newNode->next = NULL;
+  // nodurile noi se adauga la finalul cozii
+  if (q->rear == NULL)
+    q->rear = newNode;
+  // daca nu exista niciun nod in coada
+  else {
+    (q->rear)->next = newNode;
+    (q->rear) = newNode;
+  }
+  // daca exita un singur element in coada
+  if (q->front == NULL)
+    q->front = q->rear;
+}
+int isEmptyQ(Queue *q) { return (q->front == NULL); }
+Match deQueue(Queue *q) {
+  Node_Q *aux;
+  Match m;
+  aux = q->front;
+  m.Team1=aux->Match.Team1;
+  m.Team2=aux->Match.Team2;
+  q->front = (q->front)->next;
+  free(aux);
+  return m;
+}
+void deleteQueue(Queue *q) {
+  Node_Q *aux;
+  while (!isEmptyQ(q)) {
+    aux = q->front;
+    q->front = q->front->next;
+    // printf (”% d ” , aux -> val );
+    free(aux);
+  }
+  free(q);
+}
+
+//FUNCTII STIVA
+void push ( Node ** top , Team v) {
+Node * newNode =( Node *) malloc ( sizeof ( Node ));
+newNode->val=v;
+newNode->next =*top;
+*top= newNode ;
+}
+Team pop( Node ** top) {
+    Node * temp =(* top );
+    Team aux=temp->val;
+    *top =(* top)->next ;
+    free ( temp );
+    return aux ;
+}
+Team top( Node * top ){
+    if ( isEmptyS ( top )) return ;
+    return top->val;
+}
+int isEmptyS ( Node *top ){
+  return top == NULL ;
+}
+void deleteNode ( Node ** top ){
+    Node * temp ;
+    while ((* top )!= NULL ){
+        temp =* top;
+        *top =(* top)->next ;
+        free ( temp );
+    }
+}
 
 int citireF(FILE *f, lstTeam *l) {
   int n, i, j;
@@ -94,29 +191,18 @@ void swap(float *a, float *b) {
   *b = t;
 }
 
-// function to find the partition position
+
 int partition(float array[], int low, int high) {
-  float pivot = array[high];  // select the rightmost element as pivot
-                              // pointer for greater element
+  float pivot = array[high];  
   int i = (low - 1);
 
-  // traverse each element of the array
-  // compare them with the pivot
   for (int j = low; j < high; j++) {
     if (array[j] <= pivot) {
-      // if element smaller than pivot is found
-      // swap it with the greater element pointed by i
       i++;
-
-      // swap element at i with element at j
       swap(&array[i], &array[j]);
     }
   }
-
-  // swap the pivot element with the greater element at i
   swap(&array[i + 1], &array[high]);
-
-  // return the partition point
   return (i + 1);
 }
 
@@ -153,7 +239,6 @@ void Eliminate(lstTeam *l, int n) {
   diff = n - m;
   m = diff;
   f = v[diff - 1];
-  printf("Numarul sub care trebuie sa fie: %.2f \n", f);
   p = l;
   i = 0;
   while (p->next) {
@@ -195,6 +280,16 @@ void Eliminate(lstTeam *l, int n) {
   }
 }
 
+void add_queue(lstTeam *l, Queue *q){
+  while(l->next){
+    l=l->next;
+  }
+  lstTeam *p;
+  while(l->prev){
+    enQueue(q, l->T, p->prev->T);
+    l=l->prev->prev;
+  }
+}
 int main(int argc, char *argv[]) {
   FILE *d;
   FILE *r;
@@ -219,6 +314,9 @@ int main(int argc, char *argv[]) {
     cerinte = cerinte + i;
     ch = getc(c);
   }
+  Queue *queue;
+  queue = createQueue();
+  Node *stack;
 
   printf("cerinte = %d\n", cerinte);
 
