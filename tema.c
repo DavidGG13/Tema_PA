@@ -23,7 +23,7 @@ struct lstTeam {
 };
 
 struct Node {
-  struct Team val;
+  struct Team T;
   struct Node *next;
 };
 struct Node_Q {
@@ -92,13 +92,13 @@ void deleteQueue(Queue *q) {
 // FUNCTII STIVA
 void push(Node **top, Team v) {
   Node *newNode = (Node *)malloc(sizeof(Node));
-  newNode->val = v;
+  newNode->T = v;
   newNode->next = *top;
   *top = newNode;
 }
 Team pop(Node **top) {
   Node *temp = (*top);
-  Team aux = temp->val;
+  Team aux = temp->T;
   *top = (*top)->next;
   free(temp);
   return aux;
@@ -107,7 +107,7 @@ int isEmptyS(Node *top) { return top == NULL; }
 Team top(Node *top) {
   Team empty;
   if (isEmptyS(top)) return empty;
-  return top->val;
+  return top->T;
 }
 void deleteNode(Node **top) {
   Node *temp;
@@ -133,7 +133,8 @@ int citireF(FILE *f, lstTeam *l) {
     l->T.name = (char *)malloc(sizeof(char) * strlen(buffer));
     strcpy(l->T.name, buffer);
     free(buffer);
-    l->T.name[strlen(l->T.name) - 1] = '\0';
+    l->T.name[strlen(l->T.name) - 2] = '\0';
+    
     // printf("Nume echipa: %s  Numar membrii: %d\n", l->T.name,
     // l->T.numPlayers);
     l->T.teamScore = 0;
@@ -211,7 +212,7 @@ void quickSort(float array[], int low, int high) {
   }
 }
 
-void Eliminate(lstTeam *l, int n) {
+int Eliminate(lstTeam *l, int n) {
   int i, m = 1, diff;
   float *v, f;
   v = (float *)malloc(sizeof(float) * n);
@@ -227,7 +228,6 @@ void Eliminate(lstTeam *l, int n) {
   }
   m = m / 2;
   diff = n - m;
-  m = diff;
   f = v[diff - 1];
   p = l;
   i = 0;
@@ -278,6 +278,7 @@ void Eliminate(lstTeam *l, int n) {
     }
     p = p->prev;
   }
+  return m;
 }
 
 void add_queue(lstTeam *l, Queue *q) {
@@ -299,34 +300,104 @@ void Play(FILE *f, Queue *q, Node **L, Node **W) {
   Match M;
   int i, n;
   fseek(f, 0L, SEEK_END);
+
   while (q->front) {
     M = deQueue(q);
-    M.Team1.name[strlen(M.Team1.name) - 1] = '\0';
-    n = 68 - strlen(M.Team2.name);
+
+    n = 67 - strlen(M.Team2.name);
     fputs(M.Team1.name, f);
     for (i = strlen(M.Team1.name); i < n; i++) {
-      if (i == 34) {
+      if (i == 33) {
         fputc('-', f);
         continue;
       }
       fputc(' ', f);
     }
     fputs(M.Team2.name, f);
-    if (M.Team1.teamScore >= M.Team1.teamScore) {
+    fputc('\n', f);
+    if (M.Team1.teamScore > M.Team2.teamScore) {
       push(W, M.Team1);
-      M.Team1.teamScore = M.Team1.teamScore + 1;
-      for (i = 0; i < M.Team1.numPlayers; i++) {
-        M.Team1.P->points = M.Team1.P->points + 1;
-      }
       push(L, M.Team2);
     } else {
       push(L, M.Team1);
       push(W, M.Team2);
-      M.Team2.teamScore = M.Team2.teamScore + 1;
-      for (i = 0; i < M.Team2.numPlayers; i++) {
-        M.Team2.P->points = M.Team2.P->points + 1;
-      }
     }
+  }
+}
+
+void FINAL(FILE *f, Queue *q, int c) {
+  Match M;
+  Team T;
+  fprintf(f, "\n--- ROUND NO:%d\n", c);
+  M = (q->front)->Match;
+  int i, n;
+  fseek(f, 0L, SEEK_END);
+  n = 67 - strlen(M.Team2.name);
+  fputs(M.Team1.name, f);
+  for (i = strlen(M.Team1.name); i < n; i++) {
+    if (i == 33) {
+      fputc('-', f);
+      continue;
+    }
+    fputc(' ', f);
+  }
+  fputs(M.Team2.name, f);
+  fputc('\n', f);
+  if (M.Team1.teamScore > M.Team2.teamScore) {
+    T = M.Team1;
+  } else {
+    T = M.Team2;
+  }
+  T.teamScore = T.teamScore + 1;
+  for (i = 0; i < T.numPlayers; i++) {
+    T.P[i].points = T.P[i].points + 1;
+  }
+  fprintf(f, "\nWINNERS OF ROUND NO:%d\n", c);
+  fputs(T.name, f);
+  n=37;
+  for (i = strlen(T.name); i < n; i++) {
+    if (i == 34) {
+      fputc('-', f);
+      continue;
+    }
+    fputc(' ', f);
+  }
+  fprintf(f, "%.2f", T.teamScore);
+  fputc('\n', f);
+}
+
+void transfer(FILE *f, Node *L, Node *W, Queue *q) {
+  fseek(f, 0L, SEEK_END);
+  int i, n = 37;
+
+  int b = 0;
+  while (W != NULL) {
+    Team T;
+    W->T.teamScore = W->T.teamScore + 1;
+    for (i = 0; i < W->T.numPlayers; i++) {
+      W->T.P[i].points = W->T.P[i].points + 1;
+    }
+    fputs(W->T.name, f);
+    for (i = strlen(W->T.name); i < n; i++) {
+      if (i == 34) {
+        fputc('-', f);
+        continue;
+      }
+      fputc(' ', f);
+    }
+    fprintf(f, "%.2f", W->T.teamScore);
+    fputc('\n', f);
+    if (b == 0) {
+      T = W->T;
+      b = 1;
+    } else if (b == 1) {
+      enQueue(q, T, W->T);
+      // printf("%s vs %s\n", (q->rear)->Match.Team1.name,
+      // (q->rear)->Match.Team2.name);
+      b = 0;
+    }
+    // printf("%s\n", W->T.name);
+    W = W->next;
   }
 }
 
@@ -354,6 +425,7 @@ int main(int argc, char *argv[]) {
     cerinte = cerinte + i;
     ch = getc(c);
   }
+
   Queue *queue;
   queue = createQueue();
   Node *Winners, *Losers;
@@ -370,10 +442,22 @@ int main(int argc, char *argv[]) {
       break;
     case 3:
       n = citireF(d, lista);
-      Eliminate(lista, n);
+      n = Eliminate(lista, n);
       scriereF(r, lista);
+
       add_queue(lista, queue);
-      Play(r, queue, &Losers, &Winners);
+      for (i = 0, n = n / 2; n > 1; i++, n = n / 2) {
+        fprintf(r, "\n--- ROUND NO:%d\n", (i + 1));
+
+        Play(r, queue, &Losers, &Winners);
+        fprintf(r, "\nWINNERS OF ROUND NO:%d\n", (i + 1));
+
+        transfer(r, Losers, Winners, queue);
+        deleteNode(&Losers);
+        deleteNode(&Winners);
+      }
+      FINAL(r, queue, i + 1);
+
       break;
     case 4:
       n = citireF(d, lista);
