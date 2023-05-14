@@ -16,8 +16,8 @@ int citireF(FILE *f, lstTeam *l) {
     strcpy(l->T.name, buffer);
     free(buffer);
     l->T.name[strlen(l->T.name) - 2] = '\0';
-    if(l->T.name[strlen(l->T.name)-1]==' '){
-      l->T.name[strlen(l->T.name)-1]='\0';
+    if (l->T.name[strlen(l->T.name) - 1] == ' ') {
+      l->T.name[strlen(l->T.name) - 1] = '\0';
     }
     // printf("Nume echipa: %s  Numar membrii: %d\n", l->T.name,
     // l->T.numPlayers);
@@ -256,6 +256,34 @@ void transfer(FILE *f, Node *L, Node *W, Queue *q) {
   }
 }
 
+void create_tree(Node *q, N_tree **root) {
+  while (q) {
+    *root = insert(*root, q->T);
+    printf("%.2f  - %s\n", q->T.teamScore, q->T.name);
+    q = q->next;
+  }
+}
+
+void print_tree(FILE *f, N_tree *root) {
+  fseek(f, 0L, SEEK_END);
+  int i, n;
+  if (root) {
+    print_tree(f, root->right);
+    fputs(root->T.name, f);
+    n = 37;
+    for (i = strlen(root->T.name); i < n; i++) {
+      if (i == 34) {
+        fputc('-', f);
+        continue;
+      }
+      fputc(' ', f);
+    }
+    fprintf(f, "%.2f", root->T.teamScore);
+    fputc('\n', f);
+    print_tree(f, root->left);
+  }
+}
+
 int main(int argc, char *argv[]) {
   FILE *d;
   FILE *r;
@@ -284,6 +312,7 @@ int main(int argc, char *argv[]) {
   Queue *queue;
   queue = createQueue();
   Node *Winners, *Losers;
+  N_tree *root;
   printf("cerinte = %d\n", cerinte);
   switch (cerinte) {
     case 1:
@@ -316,10 +345,30 @@ int main(int argc, char *argv[]) {
       break;
     case 4:
       n = citireF(d, lista);
-      Eliminate(lista, n);
+      n = Eliminate(lista, n);
       scriereF(r, lista);
+
       add_queue(lista, queue);
-      Play(r, queue, &Losers, &Winners);
+      for (i = 0, n = n / 2; n > 1; i++, n = n / 2) {
+        fprintf(r, "\n--- ROUND NO:%d\n", (i + 1));
+
+        Play(r, queue, &Losers, &Winners);
+        fprintf(r, "\nWINNERS OF ROUND NO:%d\n", (i + 1));
+
+        transfer(r, Losers, Winners, queue);
+
+        if (n == 8) {
+          create_tree(Winners, &root);
+        }
+
+        deleteNode(&Losers);
+        deleteNode(&Winners);
+      }
+      FINAL(r, queue, i + 1);
+      fprintf(r, "\nTOP 8 TEAMS:\n");
+      print_tree(r, root);
+      break;
+    case 5:
       break;
     default:
       printf("Nu au fost executate cerintele!\n");

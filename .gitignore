@@ -2,3 +2,4 @@
 *.in
 lanparty
 .clang-format
+ex.c

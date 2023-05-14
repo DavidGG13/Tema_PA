@@ -36,6 +36,13 @@ struct Node_Q {
 struct Q {
   struct Node_Q *front, *rear;
 };
+
+struct N {  // nod arbore
+  struct Team T;
+  struct N *left, *right;
+};
+
+typedef struct N N_tree;
 typedef struct Node_Q Node_Q;
 typedef struct Match Match;
 typedef struct Q Queue;
@@ -45,18 +52,26 @@ typedef struct Player Player;
 typedef struct Node Node;
 
 Queue *createQueue();
-void enQueue(Queue *, Team , Team );
+void enQueue(Queue *, Team, Team);
 int isEmptyQ(Queue *);
 Match deQueue(Queue *);
 void deleteQueue(Queue *);
 
-
-void push(Node **, Team );
+void push(Node **, Team);
 Team pop(Node **);
 int isEmptyS(Node *);
 void deleteNode(Node **);
 Team top(Node *);
 
+void initTree(N_tree **, Team);
+int isEmpty(N_tree *);
+int isInterior(N_tree *);
+int isLeaf(N_tree *);
+void preorder(N_tree *);
+void postorder(N_tree *);
+N_tree *newN_tree(Team);
+N_tree *insert(N_tree *, Team);
+
 void swap(float *, float *);
-int partition(float *, int , int );
-void quickSort(float *, int , int );
+int partition(float *, int, int);
+void quickSort(float *, int, int);

@@ -74,7 +74,72 @@ void deleteNode(Node **top) {
   }
 }
 
+void initTree(N_tree **root, Team t) {
+  *root = (N_tree *)malloc(sizeof(N_tree));
+  (*root)->left = (*root)->right = NULL;
+  (*root)->T = t;
+}
 
+int isEmpty(N_tree *root)
+
+{
+  return (root == NULL);
+}
+
+int isInterior(N_tree *n)
+
+{
+  return (n->left != NULL || n->right != NULL);
+}
+
+int isLeaf(N_tree *n) {
+  // return !isInterior(n);
+  return (n->left == NULL && n->right == NULL);
+}
+
+void preorder(N_tree *root) {
+  if (root) {
+    preorder(root->left);
+    preorder(root->right);
+  }
+}
+void postorder(N_tree *root) {
+  if (root) {
+    postorder(root->left);
+    postorder(root->right);
+  }
+}
+
+void in_order(N_tree *root) {
+  if (root) {
+    in_order(root->right);
+
+    in_order(root->left);
+  }
+}
+
+N_tree *newN_tree(Team data) {
+  N_tree *n_tree = (N_tree *)malloc(sizeof(N_tree));
+  n_tree->T = data;
+  n_tree->left = n_tree->right = NULL;
+  return n_tree;
+}
+N_tree *insert(N_tree *n_tree, Team key) {
+  if (n_tree == NULL) return newN_tree(key);
+  if (key.teamScore == n_tree->T.teamScore &&
+      strcmp(key.name, n_tree->T.name) < 0) {
+    Team temp;
+    temp = n_tree->T;
+    n_tree->T = key;
+    key = temp;
+  }
+  if (key.teamScore < n_tree->T.teamScore)
+    n_tree->left = insert(n_tree->left, key);
+  else if (key.teamScore >= n_tree->T.teamScore)
+    n_tree->right = insert(n_tree->right, key);
+
+  return n_tree;
+}
 
 void swap(float *a, float *b) {
   float t = *a;
