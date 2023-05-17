@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>LANPARTY</title>
+    <style>
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #337ab7;
+            margin-top: 0;
+            font-weight: 300;
+        }
+
+        h4 {
+            color: #337ab7;
+            margin-top: 20px;
+            font-weight: 400;
+        }
+
+        h5 {
+            color: #337ab7;
+            margin-top: 15px;
+            font-weight: 400;
+        }
+
+        p {
+            margin-bottom: 10px;
+        }
+
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow: auto;
+            font-size: 14px;
+        }
+
+        code {
+            font-family: Consolas, monospace;
+        }
+
+        ol {
+            margin-left: 20px;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h2>TEMA PA &lt;PROIECT LANPARTY&gt;</h2>
+        <p><em>Gheorghe David Cristian</em></p>
+        <h4>DESCRIERE</h4>
+        <pre><code>Facultatea de Automatică și Calculatoare prin LSAC organizează în fiecare semestru un LAN
+Party la care participă toți studenții care vor să-și testeze abilitățile la un anumit joc.
+Se dorește realizarea unei soluții software (program executabil) ce poate automatiza acest
+proces.
+        </code></pre>
+        <h4>INITIALIZARE</h4>
+        <pre><code>Pentru a rula test case-urile trebuie introduse fișierele în același folder cu fișierele
+checkerului și rulată comanda &gt;./checker.sh&lt; în linia de comandă.
+        </code></pre>
+        <h4>MOD DE FUNCȚIONARE:</h4>
+        <pre><code>Programul 'tema.c' alături de 'library.h' și 'library.c' au rolul de a transforma și utiliza
+datele primite din 'd.in' astfel încât să se simuleze un concurs de tip LAN Party. Se
+menționează că fiecare jucător are un scor prestabilit.
+        </code></pre>
+        <h5>PASI DE FUNCȚIONARE</h5>
+        <ol>
+            <li><strong>CREEAREA LISTEI</strong> dublu înlănțuite care conține structura <strong>echipa</strong> și în care vor fi introduse datele citite de pe fiecare rând din <em>d.in</em> până când lista este completă, după care se va afișa în fișierul <em>r.out</em> Numele echipelor salvate în listă.</li>
+            <li><strong>PRIMA REPARTIZARE:</strong> Vor fi eliminate echipele cu cel mai mic scor per total până când <strong>nr echipe == 2^k</strong> pentru a se putea crea meciurile. <br>
+                <code>Se introduc toate scorurile într-un vector, acesta urmând să fie sortat folosindu-se un algoritm de tip *quicksort*. Se determină cel mai apropiat număr de forma 2^k și se determină valoarea minimă pentru ca o echipă să poată concura. Echipele sunt sortate în listă, cele care nu pot participa sunt șterse.</code><br> Echipele vor fi afișate ulterior în locul celor de la pasul 1 în <em>r.out</em>. (În cazul în care echipele au același scor și acesta este limita)</li>
+            <li><strong>SIMULAREA MECIURILOR:</strong> Se creează o coadă cu tipul de structură <strong>Match</strong> (Conține 2 <strong>echipe</strong>), cât și două stive <em>Winners</em> și <em>Losers</em>. Meciurile vor fi selectate în ordinea cum sunt așezate echipele în listă, 2 câte 2, urmând ca pierzătorii și câștigătorii să fie puși în stivele cu același nume. (Câștigătorii vor câștiga câte un punct per player, deci și team score-ul va crește cu un punct după fiecare rundă). Se șterge coada și se creează alta care conține echipele din stiva câștigătorilor, urmând ca ambele stive să fie golite. Se repetă acest proces până când rămâne o singură echipă, cea câștigătoare. La fiecare rundă se va afișa în <em>r.out</em> <strong>numărul acesteia, meciurile, cât și câștigătorii meciurilor.</strong></li>
+            <li><strong>OPTIMI</strong> Ne întoarcem acum la runda în care vor participa 8 echipe și facem astfel încât să introducem din acea coadă echipele și într-un arbore de tip BST, urmând să afișăm în <em>r.out</em> echipele respective cât și punctajul lor de echipă.</li>
+            <li><strong>BSTtoAVL</strong> Pentru a echilibra arborele, cea mai rapidă și eficientă metodă este folosirea unei stive intermediare: Se extrag echipele în mod descrescător din BST și se adaugă în stivă, după care cu ajutorul stivei putem crea printr-un algoritm simplu un arbore AVL. În final, vom afișa în <em>r.out</em> echipele de pe nivelul 2 al arborelui AVL.</li>
+        </ol>
+    </div>
+</body>
+</html>
