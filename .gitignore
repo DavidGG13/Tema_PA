@@ -3,3 +3,4 @@
 lanparty
 .clang-format
 ex.c
+*.rpt

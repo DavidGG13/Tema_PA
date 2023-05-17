@@ -259,7 +259,7 @@ void transfer(FILE *f, Node *L, Node *W, Queue *q) {
 void create_tree(Node *q, N_tree **root) {
   while (q) {
     *root = insert(*root, q->T);
-    printf("%.2f  - %s\n", q->T.teamScore, q->T.name);
+    // printf("%.2f  - %s\n", q->T.teamScore, q->T.name);
     q = q->next;
   }
 }
@@ -269,6 +269,9 @@ void print_tree(FILE *f, N_tree *root) {
   int i, n;
   if (root) {
     print_tree(f, root->right);
+    root->height = height(root);
+    // printf("Height: %d  Name: %s  Score: %.2f\n", root->height, root->T.name,
+    // root->T.teamScore);
     fputs(root->T.name, f);
     n = 37;
     for (i = strlen(root->T.name); i < n; i++) {
@@ -284,6 +287,14 @@ void print_tree(FILE *f, N_tree *root) {
   }
 }
 
+void BSTtoARRAY(N_tree *root, Node **st) {
+  if (root) {
+    BSTtoARRAY(root->left, st);
+    push(st, root->T);
+    BSTtoARRAY(root->right, st);
+  }
+}
+
 int main(int argc, char *argv[]) {
   FILE *d;
   FILE *r;
@@ -295,12 +306,12 @@ int main(int argc, char *argv[]) {
     printf("Unul sau ambele fisiere nu poate/pot fi deschis/e !\n");
     exit(1);
   }
+
   int cerinte = 0, i, n, ch;
   lstTeam *lista;
   lista = (lstTeam *)malloc(sizeof(lstTeam));
   lista->next = NULL;
   lista->prev = NULL;
-  printf("Verificare..\n");
   ch = getc(c);
   fseek(c, 0L, SEEK_SET);
   while (ch != EOF) {
@@ -314,16 +325,19 @@ int main(int argc, char *argv[]) {
   Node *Winners, *Losers;
   N_tree *root;
   printf("cerinte = %d\n", cerinte);
+
   switch (cerinte) {
     case 1:
       n = citireF(d, lista);
       scriereF(r, lista);
       break;
+
     case 2:
       n = citireF(d, lista);
       Eliminate(lista, n);
       scriereF(r, lista);
       break;
+
     case 3:
       n = citireF(d, lista);
       n = Eliminate(lista, n);
@@ -343,6 +357,7 @@ int main(int argc, char *argv[]) {
       FINAL(r, queue, i + 1);
 
       break;
+
     case 4:
       n = citireF(d, lista);
       n = Eliminate(lista, n);
@@ -368,7 +383,43 @@ int main(int argc, char *argv[]) {
       fprintf(r, "\nTOP 8 TEAMS:\n");
       print_tree(r, root);
       break;
+
     case 5:
+      n = citireF(d, lista);
+      n = Eliminate(lista, n);
+      scriereF(r, lista);
+
+      add_queue(lista, queue);
+      for (i = 0, n = n / 2; n > 1; i++, n = n / 2) {
+        fprintf(r, "\n--- ROUND NO:%d\n", (i + 1));
+
+        Play(r, queue, &Losers, &Winners);
+        fprintf(r, "\nWINNERS OF ROUND NO:%d\n", (i + 1));
+
+        transfer(r, Losers, Winners, queue);
+
+        if (n == 8) {
+          create_tree(Winners, &root);
+        }
+
+        deleteNode(&Losers);
+        deleteNode(&Winners);
+      }
+      FINAL(r, queue, i + 1);
+      fprintf(r, "\nTOP 8 TEAMS:\n");
+      print_tree(r, root);
+      N_tree *avl;
+      Node *st;
+
+      BSTtoARRAY(root, &st);
+      Team Tmm[8];
+      for (i = 0; i < 8; i++) {
+        Tmm[i] = st->T;
+        pop(&st);
+      }
+      fprintf(r, "\nTHE LEVEL 2 TEAMS ARE: \n");
+      avl = construct_avl(Tmm, 0, 7);
+      printLevel(r, avl, 3);
       break;
     default:
       printf("Nu au fost executate cerintele!\n");

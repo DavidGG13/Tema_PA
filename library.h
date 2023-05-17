@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define max(a, b) ((a) > (b) ? (a) : (b))
 
 struct Player {
   char *firstName;
@@ -37,7 +38,8 @@ struct Q {
   struct Node_Q *front, *rear;
 };
 
-struct N {  // nod arbore
+struct N {
+  int height;  // nod arbore
   struct Team T;
   struct N *left, *right;
 };
@@ -69,8 +71,13 @@ int isInterior(N_tree *);
 int isLeaf(N_tree *);
 void preorder(N_tree *);
 void postorder(N_tree *);
+void in_order(N_tree *);
 N_tree *newN_tree(Team);
 N_tree *insert(N_tree *, Team);
+int height(N_tree *);
+
+N_tree *construct_avl(Team *, int, int);
+void printLevel(FILE *, N_tree *, int);
 
 void swap(float *, float *);
 int partition(float *, int, int);

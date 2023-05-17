@@ -99,6 +99,7 @@ int isLeaf(N_tree *n) {
 
 void preorder(N_tree *root) {
   if (root) {
+    printf("%s  %.2f  H:%d\n", root->T.name, root->T.teamScore, root->height);
     preorder(root->left);
     preorder(root->right);
   }
@@ -107,15 +108,26 @@ void postorder(N_tree *root) {
   if (root) {
     postorder(root->left);
     postorder(root->right);
+    printf("%s  %.2f  H:%d\n", root->T.name, root->T.teamScore, root->height);
   }
 }
 
 void in_order(N_tree *root) {
   if (root) {
     in_order(root->right);
-
+    printf("%s  %.2f  H:%d\n", root->T.name, root->T.teamScore, root->height);
     in_order(root->left);
   }
+}
+int height(N_tree *root) {
+  int hs, hd;
+  if (root == NULL) return -1;
+  // inaltimea subarborelui stang
+  hs = height(root->left);
+  // inaltimea subarborelui drept
+  hd = height(root->right);
+  // returneaza inaltimea nodului
+  return 1 + ((hs > hd) ? hs : hd);
 }
 
 N_tree *newN_tree(Team data) {
@@ -139,6 +151,30 @@ N_tree *insert(N_tree *n_tree, Team key) {
     n_tree->right = insert(n_tree->right, key);
 
   return n_tree;
+}
+
+N_tree *construct_avl(Team sorted_array[], int start, int end) {
+  if (start > end) return NULL;
+
+  int mid = (start + end) / 2;
+  N_tree *root = newN_tree(sorted_array[mid]);
+
+  root->left = construct_avl(sorted_array, start, mid - 1);
+  root->right = construct_avl(sorted_array, mid + 1, end);
+
+  root->height = 1 + max(height(root->left), height(root->right));
+
+  return root;
+}
+
+void printLevel(FILE *f, N_tree *root, int level) {
+  if (root == NULL) return;
+  if (level == 1)
+    fprintf(f, "%s\n", root->T.name);
+  else if (level > 1) {
+    printLevel(f, root->left, level - 1);
+    printLevel(f, root->right, level - 1);
+  }
 }
 
 void swap(float *a, float *b) {
