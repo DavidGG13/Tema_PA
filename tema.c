@@ -364,6 +364,15 @@ int main(int argc, char *argv[]) {
       scriereF(r, lista);
 
       add_queue(lista, queue);
+      while (lista) {
+        lista = lista->next;
+      }
+      while (lista) {
+        lstTeam *tmp;
+        tmp = lista;
+        lista = lista->prev;
+        free(tmp);
+      }
       for (i = 0, n = n / 2; n > 1; i++, n = n / 2) {
         fprintf(r, "\n--- ROUND NO:%d\n", (i + 1));
 
